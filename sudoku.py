@@ -2,6 +2,16 @@ import numpy as np
 
 class Sudoku:
     def __init__(self, initial_board, help=True) -> None:
+        """
+        Initialize a Sudoku puzzle.
+
+        Args:
+            initial_board (numpy.ndarray): A 9x9 NumPy array representing the initial Sudoku board.
+            help (bool, optional): Enable or disable help mode. Defaults to True.
+        
+        Raises:
+            ValueError: If the initial board is invalid.
+        """
         self.help = help
         
         if initial_board is None:
@@ -23,7 +33,9 @@ class Sudoku:
         
     
     def display(self):
-        # Display the sudoky board
+        """
+        Display the current state of the Sudoku board.
+        """
         for row in range(0,9):
             if row%3 == 0:
                 print("-"*25)
@@ -36,7 +48,9 @@ class Sudoku:
         
     
     def display_solved_board(self):
-        # Display the sudoku board
+        """
+        Display the solved Sudoku board.
+        """
         for row in range(0,9):
             if row%3 == 0:
                 print("-"*25)
@@ -49,7 +63,17 @@ class Sudoku:
         
     
     def is_valid_move(self, row, col, num) -> bool:
-        # Checks if the number is already in the row or column
+        """
+        Check if a given number can be placed in a specific cell.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+            num (int): The number to check.
+
+        Returns:
+            bool: True if the move is valid, False otherwise.
+        """
         for i in range(9):
             if self.board[row][i] == num or self.board[i][col] == num:
                 return False
@@ -67,6 +91,12 @@ class Sudoku:
     
     
     def __find_empty_cell(self):
+        """
+        Find the first empty cell in the Sudoku board.
+
+        Returns:
+            tuple: A tuple (row, col) representing the empty cell's coordinates, or None if the board is full.
+        """
         for i in range(9):
             for j in range(9):
                 if self.board[i][j] == 0:
@@ -76,6 +106,12 @@ class Sudoku:
     
     
     def solve(self) -> bool:
+        """
+        Solve the Sudoku puzzle using a backtracking algorithm.
+
+        Returns:
+            bool: True if a solution is found, False otherwise.
+        """
         empty_cell = self.__find_empty_cell()
         if not empty_cell:
             return True
@@ -96,12 +132,26 @@ class Sudoku:
                 
     
     def restart_sudoku(self):
-        # restarts the current sudoku
+        """
+        Restart the current Sudoku puzzle.
+        """
         self.board = self.initial_board
+        print("The current board has been restarted")
 
 
     def insert(self, row, col, num) -> bool:
-        # check if help is on
+        """
+        Insert a number into a cell on the Sudoku board.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+            num (int): The number to insert.
+
+        Returns:
+            bool: True if the insertion is valid, False otherwise.
+        """
+        # Check if help is on
         if self.help:
             if self.resolved_board[row][col] == num:
                 self.board[row][col] = num
@@ -109,12 +159,61 @@ class Sudoku:
             else:
                 return False
         
-        # if help is off, checks if it's a valid move in current board
+        # If help is off, checks if it's a valid move in current board
         if self.is_valid_move(row, col, num):
             self.board[row][col] = num
             return True
         
         return False
     
+    
+    def delete_value(self, row, col) -> int:
+        """
+        Delete a value from a cell on the Sudoku board.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+
+        Returns:
+            int: The deleted number, or -1 if the cell is part of the initial board and cannot be deleted.
+        """
+        if self.initial_board[row][col] != 0:
+            print("Can't delete a number from the initial board")
+            return -1
+        
+        num = self.board[row][col]
+        self.board[row][col] = 0
+        return num
+    
+    
+    def possible_values(self, row, col) -> list:
+        """
+        Get a list of possible values that can be placed in a specific cell.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+
+        Returns:
+            list: A list of integers representing possible values.
+        """
+        possible_values = [0]*9
+        
+        # Calculate every single number for the cell
+        for num in range(1, 10):
+            if self.is_valid_move(row, col, num):
+                possible_values[num-1] = 1
+                
+        return possible_values
+            
+        
+    
     def change_help_mode(self, mode: bool):
+        """
+        Change the help mode, enabling or disabling hints.
+
+        Args:
+            mode (bool): True to enable help mode, False to disable it.
+        """
         self.help = mode
